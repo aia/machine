@@ -6,8 +6,6 @@ import (
 	"os"
 	"time"
 
-	"errors"
-
 	"github.com/docker/machine/libmachine/drivers"
 	"github.com/docker/machine/libmachine/log"
 	"github.com/docker/machine/libmachine/mcnflag"
@@ -94,9 +92,6 @@ func (d *Driver) GetCreateFlags() []mcnflag.Flag {
 }
 
 func (d *Driver) SetConfigFromFlags(flags drivers.DriverOptions) error {
-	if drivers.EngineInstallURLFlagSet(flags) {
-		return errors.New("--engine-install-url cannot be used with the hyperv driver, use --hyperv-boot2docker-url instead")
-	}
 	d.Boot2DockerURL = flags.String("hyperv-boot2docker-url")
 	d.VSwitch = flags.String("hyperv-virtual-switch")
 	d.DiskSize = flags.Int("hyperv-disk-size")
@@ -182,11 +177,8 @@ func (d *Driver) PreCreateCheck() error {
 	// Downloading boot2docker to cache should be done here to make sure
 	// that a download failure will not leave a machine half created.
 	b2dutils := mcnutils.NewB2dUtils(d.StorePath)
-	if err := b2dutils.UpdateISOCache(d.Boot2DockerURL); err != nil {
-		return err
-	}
-
-	return nil
+	err = b2dutils.UpdateISOCache(d.Boot2DockerURL)
+	return err
 }
 
 func (d *Driver) Create() error {

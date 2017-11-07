@@ -221,7 +221,7 @@ var Commands = []cli.Command{
 		Flags:           SharedCreateFlags,
 		Name:            "create",
 		Usage:           "Create a machine",
-		Description:     fmt.Sprintf("Run '%s create --driver name' to include the create flags for that driver in the help text.", os.Args[0]),
+		Description:     fmt.Sprintf("Run '%s create --driver name --help' to include the create flags for that driver in the help text.", os.Args[0]),
 		Action:          runCommand(cmdCreateOuter),
 		SkipFlagParsing: true,
 	},
@@ -348,7 +348,7 @@ var Commands = []cli.Command{
 	{
 		Name:        "scp",
 		Usage:       "Copy files between machines",
-		Description: "Arguments are [machine:][path] [machine:][path].",
+		Description: "Arguments are [[user@]machine:][path] [[user@]machine:][path].",
 		Action:      runCommand(cmdScp),
 		Flags: []cli.Flag{
 			cli.BoolFlag{
@@ -358,6 +358,18 @@ var Commands = []cli.Command{
 			cli.BoolFlag{
 				Name:  "delta, d",
 				Usage: "Reduce amount of data sent over network by sending only the differences (uses rsync)",
+			},
+		},
+	},
+	{
+		Name:        "mount",
+		Usage:       "Mount or unmount a directory from a machine with SSHFS.",
+		Description: "Arguments are [machine:][path] [mountpoint]",
+		Action:      runCommand(cmdMount),
+		Flags: []cli.Flag{
+			cli.BoolFlag{
+				Name:  "unmount, u",
+				Usage: "Unmount instead of mount",
 			},
 		},
 	},

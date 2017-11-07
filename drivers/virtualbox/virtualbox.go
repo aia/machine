@@ -228,9 +228,6 @@ func (d *Driver) GetURL() (string, error) {
 }
 
 func (d *Driver) SetConfigFromFlags(flags drivers.DriverOptions) error {
-	if drivers.EngineInstallURLFlagSet(flags) {
-		return errors.New("--engine-install-url cannot be used with the virtualbox driver, use --virtualbox-boot2docker-url instead")
-	}
 	d.CPU = flags.Int("virtualbox-cpu-count")
 	d.Memory = flags.Int("virtualbox-memory")
 	d.DiskSize = flags.Int("virtualbox-disk-size")
@@ -994,7 +991,7 @@ func getRandomIPinSubnet(d *Driver, baseIP net.IP) (net.IP, error) {
 	// select pseudo-random DHCP addr; make sure not to clash with the host
 	// only try 5 times and bail if no random received
 	for i := 0; i < 5; i++ {
-		n := d.randomInter.RandomInt(25)
+		n := d.randomInter.RandomInt(24) + 1
 		if byte(n) != nAddr[3] {
 			dhcpAddr = net.IPv4(nAddr[0], nAddr[1], nAddr[2], byte(n))
 			break
