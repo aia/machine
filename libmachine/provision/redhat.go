@@ -21,7 +21,7 @@ var (
 	ErrUnknownYumOsRelease = errors.New("unknown OS for Yum repository")
 	engineConfigTemplate   = `[Service]
 ExecStart=
-ExecStart=/usr/bin/dockerd -H tcp://0.0.0.0:{{.DockerPort}} -H unix:///var/run/docker.sock --storage-driver {{.EngineOptions.StorageDriver}} --tlsverify --tlscacert {{.AuthOptions.CaCertRemotePath}} --tlscert {{.AuthOptions.ServerCertRemotePath}} --tlskey {{.AuthOptions.ServerKeyRemotePath}} {{ range .EngineOptions.Labels }}--label {{.}} {{ end }}{{ range .EngineOptions.InsecureRegistry }}--insecure-registry {{.}} {{ end }}{{ range .EngineOptions.RegistryMirror }}--registry-mirror {{.}} {{ end }}{{ range .EngineOptions.ArbitraryFlags }}--{{.}} {{ end }}
+ExecStart=/usr/bin/dockerd -H tcp://0.0.0.0:{{.DockerPort}} -H unix:///var/run/docker.sock --storage-driver {{.EngineOptions.StorageDriver}} --tlsverify --tlscacert {{.AuthOptions.CaCertRemotePath}} --tlscert {{.AuthOptions.ServerCertRemotePath}} --tlskey {{.AuthOptions.ServerKeyRemotePath}} {{ range .EngineOptions.Labels }}--label {{.}} {{ end }} --add-runtime docker-runc=/usr/libexec/docker/docker-runc-current --default-runtime=docker-runc --exec-opt native.cgroupdriver=systemd {{ range .EngineOptions.InsecureRegistry }}--insecure-registry {{.}} {{ end }}{{ range .EngineOptions.RegistryMirror }}--registry-mirror {{.}} {{ end }}{{ range .EngineOptions.ArbitraryFlags }}--{{.}} {{ end }}
 Environment={{range .EngineOptions.Env}}{{ printf "%q" . }} {{end}}
 `
 	majorVersionRE = regexp.MustCompile(`^(\d+)(\..*)?`)
@@ -134,7 +134,7 @@ func (provisioner *RedHatProvisioner) Provision(swarmOptions swarm.Options, auth
 	swarmOptions.Env = engineOptions.Env
 
 	// set default storage driver for redhat
-	storageDriver, err := decideStorageDriver(provisioner, "devicemapper", engineOptions.StorageDriver)
+	storageDriver, err := decideStorageDriver(provisioner, "overlay2", engineOptions.StorageDriver)
 	if err != nil {
 		return err
 	}
